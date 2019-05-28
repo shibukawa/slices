@@ -37,10 +37,10 @@
 //
 // ValueTypeInsert
 //
-// This function insert item in correct position and returns a sorted slice.
+// This function inserts item in correct position and returns a sorted slice.
 //
 // ValueTypeRemove
 //
-// This function remove item in a sorted slice.
+// This function removes item in a sorted slice.
 //
 package slices

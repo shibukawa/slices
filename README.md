@@ -18,19 +18,37 @@ This commands generates the following functions:
 * MyStructInsert(sorted []MyStruct, item MyStruct, lt MyStructLessThan) []MyStruct
 * MyStructRemove(sorted []MyStruct, item MyStruct, lt MyStructLessThan) []MyStruct
 
-To use these functions, you should define function that has signature like this:
+To use these functions, you should define function that compares values in slice and it has signature like this:
 
 ```go
 func (a, b MyStruct) bool
 ```
 
-The function excepts MyStructSort assumes sorted slice as a first argument.
+If you want to compare field "name", the implementation should be the following code:
+
+```go
+func (a, b MyStruct) bool {
+	return a.name < b.name
+}
+```
+
+The function except MyStructSort assumes sorted slice as a first argument.
+
+## Template Types
+
+There for template files
+
+* slices.go: Standard template. Use TimSort. Accept "LessThan" function as a comparator.
+* slices-comaprable.go: Template for built-in types. Use TimSort. Use ``<`` operator as a comparator.
+* slices-small.go: Standard template. Use "sort.Slices". Accept "LessThan" function as a comparator.
+* slices-comaprable-small.go: Template for built-in types. Use "sort.Slices". Use ``<`` operator as a comparator.
 
 ## Generated Function Reference
 
 ### [ValueType]Sort()
 
 This function provides timsort algorithm that is fast, stable sort algorithm. based on github.com/psilva261/timsort.
+If you use template/slices-small.go or template/slices-comparable-small.go, it uses "sort.Slice" function.
 
 ### [ValueType]BinarySearch()
 
@@ -56,7 +74,7 @@ This function remove item in a sorted slice.
 
 This repository is a template for genny:
 
-* [genny - Generics for Go](https://github.com/cheekybits/genny) 
+* [genny - Generics for Go](https://github.com/cheekybits/genny)
 
 This template is highly depending on high performance sort algorithm:
 
