@@ -139,3 +139,52 @@ func TestRemove(t *testing.T) {
 
 	properties.TestingRun(t)
 }
+
+func TestMerge(t *testing.T) {
+	numberGenerator := gen.Int()
+	numSliceGenerator := gen.SliceOfN(30, numberGenerator)
+
+	properties := gopter.NewProperties(nil)
+
+	properties.Property("marge item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
+		IntSort(input1)
+		IntSort(input2)
+		IntSort(input3)
+
+		marged := IntMerge(input1, input2, input3)
+
+		expected := make([]int, len(marged))
+		copy(expected, marged)
+		IntSort(expected)
+
+		return reflect.DeepEqual(expected, marged)
+	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
+
+	properties.TestingRun(t)
+}
+
+func TestIterateOver(t *testing.T) {
+	numberGenerator := gen.Int()
+	numSliceGenerator := gen.SliceOfN(5, numberGenerator)
+
+	properties := gopter.NewProperties(nil)
+
+	properties.Property("iterate item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
+		IntSort(input1)
+		IntSort(input2)
+		IntSort(input3)
+
+		var result []int
+		IntIterateOver(func(item, srcIndex int) {
+			result = append(result, item)
+		}, input1, input2, input3)
+
+		expected := make([]int, len(result))
+		copy(expected, result)
+		IntSort(expected)
+
+		return reflect.DeepEqual(expected, result)
+	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
+
+	properties.TestingRun(t)
+}

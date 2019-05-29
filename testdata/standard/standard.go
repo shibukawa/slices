@@ -1178,3 +1178,76 @@ func IntRemove(sorted []int, item int, lt IntLessThan) []int {
 	}
 	return sorted
 }
+
+// IntIterateOver iterates over input sorted slices and calls callback with each items in ascendant order.
+func IntIterateOver(lt IntLessThan, callback func(item int, srcIndex int), sorted ...[]int) {
+	sourceSlices := sorted
+	sourceSliceCount := len(sorted)
+	indexes := make([]int, sourceSliceCount)
+	sliceIndex := make([]int, sourceSliceCount)
+	for i := range sourceSlices {
+		sliceIndex[i] = i
+	}
+	index := 0
+	for {
+		minSlice := 0
+		minItem := sourceSlices[0][indexes[0]]
+		for i := 1; i < sourceSliceCount; i++ {
+			if lt(sourceSlices[i][indexes[i]], minItem) {
+				minSlice = i
+				minItem = sourceSlices[i][indexes[i]]
+			}
+		}
+		callback(minItem, sliceIndex[minSlice])
+		index++
+		indexes[minSlice]++
+		if indexes[minSlice] == len(sourceSlices[minSlice]) {
+			sourceSlices = append(sourceSlices[:minSlice], sourceSlices[minSlice+1:]...)
+			indexes = append(indexes[:minSlice], indexes[minSlice+1:]...)
+			sliceIndex = append(sliceIndex[:minSlice], sliceIndex[minSlice+1:]...)
+			sourceSliceCount--
+			if len(sourceSlices) == 1 {
+				slice := sourceSlices[0]
+				for i := indexes[0]; i < len(slice); i++ {
+					callback(slice[i], sliceIndex[0])
+				}
+				return
+			}
+		}
+	}
+}
+
+// IntMerge merges sorted slices and returns new slices.
+func IntMerge(lt IntLessThan, sorted ...[]int) []int {
+	length := 0
+	for _, src := range sorted {
+		length += len(src)
+	}
+	result := make([]int, length)
+	sourceSlices := sorted
+	sourceSliceCount := len(sorted)
+	indexes := make([]int, sourceSliceCount)
+	index := 0
+	for {
+		minSlice := 0
+		minItem := sourceSlices[0][indexes[0]]
+		for i := 1; i < sourceSliceCount; i++ {
+			if lt(sourceSlices[i][indexes[i]], minItem) {
+				minSlice = i
+				minItem = sourceSlices[i][indexes[i]]
+			}
+		}
+		result[index] = minItem
+		index++
+		indexes[minSlice]++
+		if indexes[minSlice] == len(sourceSlices[minSlice]) {
+			sourceSlices = append(sourceSlices[:minSlice], sourceSlices[minSlice+1:]...)
+			indexes = append(indexes[:minSlice], indexes[minSlice+1:]...)
+			sourceSliceCount--
+			if len(sourceSlices) == 1 {
+				copy(result[index:], sourceSlices[0][indexes[0]:])
+				return result
+			}
+		}
+	}
+}

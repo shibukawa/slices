@@ -45,30 +45,38 @@ There for template files
 
 ## Generated Function Reference
 
-### [ValueType]Sort()
+### [ValueType]Sort(slices []ValueType, lessThan LessThan) []ValuteType
 
 This function provides timsort algorithm that is fast, stable sort algorithm. based on github.com/psilva261/timsort.
 If you use template/slices-small.go or template/slices-comparable-small.go, it uses "sort.Slice" function.
 
-### [ValueType]BinarySearch()
+### [ValueType]BinarySearch(sorted []ValueType, item ValueType, lt LessThan) int
 
 This function returns first index i that satisfies slices[i] <= item.
 
-### [ValueType]IndexOf()
+### [ValueType]IndexOf(sorted []ValueType, item ValueType, lt LessThan) int
 
 This function returns index of item. If item is not in a sorted slice, it returns -1.
 
-### [ValueType]Contains()
+### [ValueType]Contains(sorted []ValueType, item ValueType, lt LessThan) bool
 
 This function returns true if item is in a sorted slice. Otherwise false.
 
-### [ValueType]Insert()
+### [ValueType]Insert(sorted []ValueType, item ValueType, lt LessThan) []ValueType
 
 This function insert item in correct position and returns a sorted slice.
 
-### [ValueType]Remove()
+### [ValueType]Remove(sorted []ValueType, item ValueType, lt LessThan) []ValueType
 
 This function remove item in a sorted slice.
+
+### [ValueType]IterateOver(lt LessThan, callback func(item ValueType, srcIndex int), sorted ...[]ValueType)
+
+This function iterated over input sorted slices and calls callback with each items in ascendant order.
+
+### [ValueType]Merge(lt LessThan, sorted ...[]ValueType) []ValueType
+
+This function merges sorted slices and returns new slices.
 
 ## Credits/Thanks
 

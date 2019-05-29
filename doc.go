@@ -43,4 +43,12 @@
 //
 // This function removes item in a sorted slice.
 //
+// ValueTypeIterateOver
+//
+// This function iterates over input sorted slices and calls callback with each items in ascendant order.
+//
+// ValueTypeMerge
+//
+// This function merges sorted slices and returns new slices.
+//
 package slices
