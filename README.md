@@ -17,6 +17,8 @@ This commands generates the following functions:
 * MyStructContains(sorted []MyStruct, item MyStruct, lt MyStructLessThan) bool
 * MyStructInsert(sorted []MyStruct, item MyStruct, lt MyStructLessThan) []MyStruct
 * MyStructRemove(sorted []MyStruct, item MyStruct, lt MyStructLessThan) []MyStruct
+* MyStructIterateOver(lt MyStructLessThan, callback func(item ValueType, srcIndex int), sorted ...[]MyStruct)
+* MyStructMerge(lt MyStructLessThan, sorted ...[]MyStruct) []MyStruct
 
 To use these functions, you should define function that compares values in slice and it has signature like this:
 
