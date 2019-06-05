@@ -24,7 +24,7 @@ self.__precacheManifest = [
     "url": "/slices/ionic.bundle.css"
   },
   {
-    "revision": "e54f6db6d753bdd197702a0bf1fa5613",
+    "revision": "ca80ded648b4ef3364a3f88b44720615",
     "url": "/slices/index.html"
   },
   {
