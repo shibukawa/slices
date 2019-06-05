@@ -147,6 +147,7 @@ func newTimSort(a []int) (h *timSortHandler) {
 	return h
 }
 
+
 // IntSort sorts an array using the provided comparator
 func IntSort(a []int) (err error) {
 	lo := 0
