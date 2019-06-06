@@ -16,19 +16,19 @@ self.__precacheManifest = [
     "url": "/slices/js/chunk-vendors.23b95011.js"
   },
   {
-    "revision": "cf884bae1ff9c1fe709f",
-    "url": "/slices/js/app.d98a3f6d.js"
+    "revision": "26073e68fbfbb228a2c3",
+    "url": "/slices/js/app.977c3472.js"
   },
   {
     "revision": "1355953d6d14df4138a1f56c8df64fbf",
     "url": "/slices/ionic.bundle.css"
   },
   {
-    "revision": "ca80ded648b4ef3364a3f88b44720615",
+    "revision": "ef0e5e08ce11a866b8ab697948086bfe",
     "url": "/slices/index.html"
   },
   {
-    "revision": "cf884bae1ff9c1fe709f",
+    "revision": "26073e68fbfbb228a2c3",
     "url": "/slices/css/app.951bb468.css"
   }
 ];
