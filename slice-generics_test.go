@@ -1,9 +1,9 @@
 package slices_test
 
 import (
+	"reflect"
 	"sort"
 	"testing"
-	"reflect"
 
 	"github.com/leanovate/gopter"
 	"github.com/leanovate/gopter/gen"
@@ -138,7 +138,7 @@ func TestRemove(t *testing.T) {
 
 		removedArray := IntRemove(input, value, cmp)
 
-		return len(removedArray) == len(input) -1 && !IntContains(removedArray, value, cmp)
+		return len(removedArray) == len(input)-1 && !IntContains(removedArray, value, cmp)
 	}, numSliceGenerator))
 
 	properties.TestingRun(t)

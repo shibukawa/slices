@@ -147,7 +147,6 @@ func newTimSort(a []int) (h *timSortHandler) {
 	return h
 }
 
-
 // IntSort sorts an array using the provided comparator
 func IntSort(a []int) (err error) {
 	lo := 0
@@ -1168,8 +1167,21 @@ func IntRemove(sorted []int, item int) []int {
 
 // IntIterateOver iterates over input sorted slices and calls callback with each items in ascendant order.
 func IntIterateOver(callback func(item int, srcIndex int), sorted ...[]int) {
-	sourceSlices := sorted
-	sourceSliceCount := len(sorted)
+	sourceSlices := make([][]int, 0, len(sorted))
+	for _, src := range sorted {
+		if len(src) > 0 {
+			sourceSlices = append(sourceSlices, src)
+		}
+	}
+	sourceSliceCount := len(sourceSlices)
+	if sourceSliceCount == 0 {
+		return
+	} else if sourceSliceCount == 1 {
+		for i, value := range sourceSlices[0] {
+			callback(value, i)
+		}
+		return
+	}
 	indexes := make([]int, sourceSliceCount)
 	sliceIndex := make([]int, sourceSliceCount)
 	for i := range sourceSlices {
@@ -1207,12 +1219,20 @@ func IntIterateOver(callback func(item int, srcIndex int), sorted ...[]int) {
 // IntMerge merges sorted slices and returns new slices.
 func IntMerge(sorted ...[]int) []int {
 	length := 0
+	sourceSlices := make([][]int, 0, len(sorted))
 	for _, src := range sorted {
-		length += len(src)
+		if len(src) > 0 {
+			length += len(src)
+			sourceSlices = append(sourceSlices, src)
+		}
+	}
+	if length == 0 {
+		return nil
+	} else if length == 1 {
+		return sourceSlices[0]
 	}
 	result := make([]int, length)
-	sourceSlices := sorted
-	sourceSliceCount := len(sorted)
+	sourceSliceCount := len(sourceSlices)
 	indexes := make([]int, sourceSliceCount)
 	index := 0
 	for {

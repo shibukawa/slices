@@ -142,7 +142,7 @@ func TestRemove(t *testing.T) {
 
 func TestMerge(t *testing.T) {
 	numberGenerator := gen.Int()
-	numSliceGenerator := gen.SliceOfN(30, numberGenerator)
+	numSliceGenerator := gen.SliceOf(numberGenerator)
 
 	properties := gopter.NewProperties(nil)
 
@@ -152,6 +152,10 @@ func TestMerge(t *testing.T) {
 		IntSort(input3)
 
 		marged := IntMerge(input1, input2, input3)
+
+		if len(marged) == 0 {
+			return true
+		}
 
 		expected := make([]int, len(marged))
 		copy(expected, marged)
@@ -165,7 +169,7 @@ func TestMerge(t *testing.T) {
 
 func TestIterateOver(t *testing.T) {
 	numberGenerator := gen.Int()
-	numSliceGenerator := gen.SliceOfN(5, numberGenerator)
+	numSliceGenerator := gen.SliceOf(numberGenerator)
 
 	properties := gopter.NewProperties(nil)
 
@@ -178,6 +182,10 @@ func TestIterateOver(t *testing.T) {
 		IntIterateOver(func(item, srcIndex int) {
 			result = append(result, item)
 		}, input1, input2, input3)
+
+		if len(result) == 0 {
+			return true
+		}
 
 		expected := make([]int, len(result))
 		copy(expected, result)

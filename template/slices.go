@@ -1,9 +1,9 @@
 package slices
 
 import (
-	"github.com/cheekybits/genny/generic"
 	"errors"
 	"fmt"
+	"github.com/cheekybits/genny/generic"
 )
 
 type ValueType generic.Type
@@ -29,11 +29,11 @@ type ValueType generic.Type
 type ValueTypeLessThan func(a, b ValueType) bool
 
 type timSortHandler struct {
-	a []ValueType
-	lt ValueTypeLessThan
+	a         []ValueType
+	lt        ValueTypeLessThan
 	minGallop int
-	tmp []ValueType // Actual runtime type will be Object[], regardless of ValueType
-	stackSize int // Number of pending runs on stack
+	tmp       []ValueType // Actual runtime type will be Object[], regardless of ValueType
+	stackSize int         // Number of pending runs on stack
 	runBase   []int
 	runLen    []int
 }
@@ -749,7 +749,7 @@ func (h *timSortHandler) ensureCapacity(minCapacity int) []ValueType {
 func ValueTypeBinarySearch(sorted []ValueType, item ValueType, lt ValueTypeLessThan) int {
 	// Define f(-1) == false and f(n) == true.
 	// Invariant: f(i-1) == false, f(j) == true.
-	i, j := 0, len(sorted) - 1
+	i, j := 0, len(sorted)-1
 	for i < j {
 		h := int(uint(i+j) >> 1) // avoid overflow when computing h
 		// i ≤ h < j
@@ -781,7 +781,7 @@ func ValueTypeContains(sorted []ValueType, item ValueType, lt ValueTypeLessThan)
 // ValueTypeInsert inserts item in correct position and returns a sorted slice.
 func ValueTypeInsert(sorted []ValueType, item ValueType, lt ValueTypeLessThan) []ValueType {
 	i := ValueTypeBinarySearch(sorted, item, lt)
-	if i == len(sorted) - 1 && lt(sorted[i], item) {
+	if i == len(sorted)-1 && lt(sorted[i], item) {
 		return append(sorted, item)
 	}
 	return append(sorted[:i], append([]ValueType{item}, sorted[i:]...)...)
@@ -798,8 +798,21 @@ func ValueTypeRemove(sorted []ValueType, item ValueType, lt ValueTypeLessThan) [
 
 // ValueTypeIterateOver iterates over input sorted slices and calls callback with each items in ascendant order.
 func ValueTypeIterateOver(lt ValueTypeLessThan, callback func(item ValueType, srcIndex int), sorted ...[]ValueType) {
-	sourceSlices := sorted
-	sourceSliceCount := len(sorted)
+	sourceSlices := make([][]ValueType, 0, len(sorted))
+	for _, src := range sorted {
+		if len(src) > 0 {
+			sourceSlices = append(sourceSlices, src)
+		}
+	}
+	sourceSliceCount := len(sourceSlices)
+	if sourceSliceCount == 0 {
+		return
+	} else if sourceSliceCount == 1 {
+		for i, value := range sourceSlices[0] {
+			callback(value, i)
+		}
+		return
+	}
 	indexes := make([]int, sourceSliceCount)
 	sliceIndex := make([]int, sourceSliceCount)
 	for i := range sourceSlices {
@@ -837,12 +850,20 @@ func ValueTypeIterateOver(lt ValueTypeLessThan, callback func(item ValueType, sr
 // ValueTypeMerge merges sorted slices and returns new slices.
 func ValueTypeMerge(lt ValueTypeLessThan, sorted ...[]ValueType) []ValueType {
 	length := 0
+	sourceSlices := make([][]ValueType, 0, len(sorted))
 	for _, src := range sorted {
-		length += len(src)
+		if len(src) > 0 {
+			length += len(src)
+			sourceSlices = append(sourceSlices, src)
+		}
+	}
+	if length == 0 {
+		return nil
+	} else if length == 1 {
+		return sourceSlices[0]
 	}
 	result := make([]ValueType, length)
-	sourceSlices := sorted
-	sourceSliceCount := len(sorted)
+	sourceSliceCount := len(sourceSlices)
 	indexes := make([]int, sourceSliceCount)
 	index := 0
 	for {
