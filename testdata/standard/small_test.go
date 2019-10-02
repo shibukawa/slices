@@ -1,4 +1,4 @@
-package comparablesmall
+package small
 
 import (
 	"sort"
@@ -9,6 +9,10 @@ import (
 	"github.com/leanovate/gopter/gen"
 	"github.com/leanovate/gopter/prop"
 )
+
+func cmp(a, b int) bool {
+	return a < b
+}
 
 func TestSortInt(t *testing.T) {
 	numberGenerator := gen.Int()
@@ -22,7 +26,7 @@ func TestSortInt(t *testing.T) {
 		copy(timSort, input)
 		copy(defaultSort, input)
 
-		IntSort(timSort)
+		IntSort(timSort, cmp)
 		sort.Ints(defaultSort)
 		return reflect.DeepEqual(timSort, defaultSort)
 	}, numSliceGenerator))
@@ -40,8 +44,8 @@ func TestBinarySearch(t *testing.T) {
 		value := input[0]
 		orig := make([]int, len(input))
 		copy(orig, input)
-		IntSort(input)
-		i := IntBinarySearch(input, value)
+		IntSort(input, cmp)
+		i := IntBinarySearch(input, value, cmp)
 		if input[i] != value {
 			t.Log(i, value, input[i])
 			t.Log(orig)
@@ -61,16 +65,16 @@ func TestIndexOf(t *testing.T) {
 
 	properties.Property("indexOf found items", prop.ForAll(func(input []int) bool {
 		value := input[0]
-		IntSort(input)
-		i := IntIndexOf(input, value)
+		IntSort(input, cmp)
+		i := IntIndexOf(input, value, cmp)
 		return i != -1 && input[i] == value
 	}, numSliceGenerator))
 
 	properties.Property("indexOf returns -1 if not found", prop.ForAll(func(input []int) bool {
 		value := input[0]
 		array := input[1:]
-		IntSort(array)
-		i := IntIndexOf(array, value)
+		IntSort(array, cmp)
+		i := IntIndexOf(array, value, cmp)
 		return i == -1
 	}, numSliceGenerator))
 
@@ -85,15 +89,15 @@ func TestContains(t *testing.T) {
 
 	properties.Property("contains returns true if item found", prop.ForAll(func(input []int) bool {
 		value := input[0]
-		IntSort(input)
-		return IntContains(input, value)
+		IntSort(input, cmp)
+		return IntContains(input, value, cmp)
 	}, numSliceGenerator))
 
 	properties.Property("indexOf returns false if not found", prop.ForAll(func(input []int) bool {
 		value := input[0]
 		array := input[1:]
-		IntSort(array)
-		return !IntContains(array, value)
+		IntSort(array, cmp)
+		return !IntContains(array, value, cmp)
 	}, numSliceGenerator))
 
 	properties.TestingRun(t)
@@ -108,13 +112,13 @@ func TestInsert(t *testing.T) {
 	properties.Property("insert returns new sorted slices", prop.ForAll(func(input []int) bool {
 		expected := make([]int, len(input))
 		copy(expected, input)
-		IntSort(expected)
+		IntSort(expected, cmp)
 
 		value := input[0]
 		array := input[1:]
-		IntSort(array)
+		IntSort(array, cmp)
 
-		inserted := IntInsert(array, value)
+		inserted := IntInsert(array, value, cmp)
 
 		return reflect.DeepEqual(expected, inserted)
 	}, numSliceGenerator))
@@ -130,41 +134,53 @@ func TestRemove(t *testing.T) {
 
 	properties.Property("remove removes item of array", prop.ForAll(func(input []int) bool {
 		value := input[0]
-		IntSort(input)
+		IntSort(input, cmp)
 
-		removedArray := IntRemove(input, value)
+		removedArray := IntRemove(input, value, cmp)
 
-		return len(removedArray) == len(input) -1 && !IntContains(removedArray, value)
+		return len(removedArray) == len(input) -1 && !IntContains(removedArray, value, cmp)
 	}, numSliceGenerator))
 
 	properties.TestingRun(t)
 }
 
-func TestMerge(t *testing.T) {
+func TestUnion(t *testing.T) {
 	numberGenerator := gen.Int()
 	numSliceGenerator := gen.SliceOf(numberGenerator)
 
 	properties := gopter.NewProperties(nil)
 
-	properties.Property("marge item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
-		IntSort(input1)
-		IntSort(input2)
-		IntSort(input3)
+	properties.Property("union item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
+		IntSort(input1, cmp)
+		IntSort(input2, cmp)
+		IntSort(input3, cmp)
 
-		marged := IntMerge(input1, input2, input3)
+		t.Log(input1)
+		t.Log(input2)
+		t.Log(input3)
 
-		if len(marged) == 0 {
+		union := IntUnion(cmp, input1, input2, input3)
+
+		if len(union) == 0 {
 			return true
 		}
 
-		expected := make([]int, len(marged))
-		copy(expected, marged)
-		IntSort(expected)
+		expected := make([]int, len(union))
+		copy(expected, union)
+		IntSort(expected, cmp)
 
-		return reflect.DeepEqual(expected, marged)
+		return reflect.DeepEqual(expected, union)
 	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
 
 	properties.TestingRun(t)
+}
+
+func TestUnionRegression(t *testing.T) {
+	input1 := []int{}
+	input2 := []int{}
+	input3 := []int{-969021752, -217052717, -131317604, 1466473779, 1779713542}
+	merged := IntUnion(cmp, input1, input2, input3)
+	t.Log(merged)
 }
 
 func TestIterateOver(t *testing.T) {
@@ -174,12 +190,12 @@ func TestIterateOver(t *testing.T) {
 	properties := gopter.NewProperties(nil)
 
 	properties.Property("iterate item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
-		IntSort(input1)
-		IntSort(input2)
-		IntSort(input3)
+		IntSort(input1, cmp)
+		IntSort(input2, cmp)
+		IntSort(input3, cmp)
 
 		var result []int
-		IntIterateOver(func(item, srcIndex int) {
+		IntIterateOver(cmp, func(item, srcIndex int) {
 			result = append(result, item)
 		}, input1, input2, input3)
 
@@ -189,10 +205,11 @@ func TestIterateOver(t *testing.T) {
 
 		expected := make([]int, len(result))
 		copy(expected, result)
-		IntSort(expected)
+		IntSort(expected, cmp)
 
 		return reflect.DeepEqual(expected, result)
 	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
 
 	properties.TestingRun(t)
 }
+

@@ -1,9 +1,9 @@
 # slices
 
+[Web Code Generation Tool](https://shibukawa.github.io/slices/)
+
 genny's template to handle sorted slice.
-
 It generates generic algorithms for slices:
-
 
 ```sh
 $ genny -in=$GOPATH/src/github.com/shibukawa/slices/template/slices.go -out=mystructslices.go gen "ValueType=MyStruct"
@@ -17,8 +17,9 @@ This commands generates the following functions:
 * MyStructContains(sorted []MyStruct, item MyStruct, lt MyStructLessThan) bool
 * MyStructInsert(sorted []MyStruct, item MyStruct, lt MyStructLessThan) []MyStruct
 * MyStructRemove(sorted []MyStruct, item MyStruct, lt MyStructLessThan) []MyStruct
+* MyStructRemoveAt(sorted []MyStruct, i int) []MyStruct
 * MyStructIterateOver(lt MyStructLessThan, callback func(item ValueType, srcIndex int), sorted ...[]MyStruct)
-* MyStructMerge(lt MyStructLessThan, sorted ...[]MyStruct) []MyStruct
+* MyStructUnion(lt MyStructLessThan, sorted ...[]MyStruct) []MyStruct
 
 To use these functions, you should define function that compares values in slice and it has signature like this:
 
@@ -72,13 +73,17 @@ This function insert item in correct position and returns a sorted slice.
 
 This function remove item in a sorted slice.
 
+### [ValueType]RemoveAt(sorted []ValueType, i int) []ValueType
+
+This function remove item at the specified index in a slice.
+
 ### [ValueType]IterateOver(lt LessThan, callback func(item ValueType, srcIndex int), sorted ...[]ValueType)
 
 This function iterated over input sorted slices and calls callback with each items in ascendant order.
 
-### [ValueType]Merge(lt LessThan, sorted ...[]ValueType) []ValueType
+### [ValueType]Union(lt LessThan, sorted ...[]ValueType) []ValueType
 
-This function merges sorted slices and returns new slices.
+This function unions sorted slices and returns new slices.
 
 ## Credits/Thanks
 

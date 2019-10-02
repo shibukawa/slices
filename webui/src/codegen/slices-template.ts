@@ -9,7 +9,7 @@ export function generate(config: GeneratorConfig): string {
     const insert = symbol('Insert', true, config);
     const remove = symbol('Remove', true, config);
     const iterateOver = symbol('IterateOver', true, config);
-    const merge = symbol('Merge', true, config);
+    const union = symbol('Union', true, config);
     const lessThan = symbol('LessThan', true, config);
 
     return `
@@ -132,8 +132,8 @@ export function generate(config: GeneratorConfig): string {
         }
     }
 
-    // ${merge} merges sorted slices and returns new slices.
-    func ${merge}(lt ${lessThan}, sorted ...[]${sliceType}) []${sliceType} {
+    // ${union} unions sorted slices and returns new slices.
+    func ${union}(lt ${lessThan}, sorted ...[]${sliceType}) []${sliceType} {
         length := 0
         sourceSlices := make([][]${sliceType}, 0, len(sorted))
         for _, src := range sorted {
@@ -144,7 +144,7 @@ export function generate(config: GeneratorConfig): string {
         }
         if length == 0 {
             return nil
-        } else if length == 1 {
+        } else if len(sourceSlices) == 1 {
             return sourceSlices[0]
         }
         result := make([]${sliceType}, length)

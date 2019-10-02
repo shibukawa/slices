@@ -2,27 +2,30 @@
 // Any changes will be lost if this file is regenerated.
 // see https://github.com/cheekybits/genny
 
-package comparablesmall
+package small
 
 import "sort"
 
+// IntLessThan is Delegate type that sorting uses as a comparator
+type IntLessThan func(a, b int) bool
+
 // IntSort sorts an array using the provided comparator
-func IntSort(a []int) (err error) {
+func IntSort(a []int, lt IntLessThan) (err error) {
 	sort.Slice(a, func(i, j int) bool {
-		return a[i] < a[j]
+		return lt(a[i], a[j])
 	})
 	return nil
 }
 
 // IntBinarySearch returns first index i that satisfies slices[i] <= item.
-func IntBinarySearch(sorted []int, item int) int {
+func IntBinarySearch(sorted []int, item int, lt IntLessThan) int {
 	// Define f(-1) == false and f(n) == true.
 	// Invariant: f(i-1) == false, f(j) == true.
 	i, j := 0, len(sorted)-1
 	for i < j {
 		h := int(uint(i+j) >> 1) // avoid overflow when computing h
 		// i ≤ h < j
-		if sorted[h] < item {
+		if lt(sorted[h], item) {
 			i = h + 1 // preserves f(i-1) == false
 		} else {
 			j = h // preserves f(j) == true
@@ -33,40 +36,45 @@ func IntBinarySearch(sorted []int, item int) int {
 }
 
 // IntIndexOf returns index of item. If item is not in a sorted slice, it returns -1.
-func IntIndexOf(sorted []int, item int) int {
-	i := IntBinarySearch(sorted, item)
-	if sorted[i] == item {
+func IntIndexOf(sorted []int, item int, lt IntLessThan) int {
+	i := IntBinarySearch(sorted, item, lt)
+	if !lt(sorted[i], item) && !lt(item, sorted[i]) {
 		return i
 	}
 	return -1
 }
 
 // IntContains returns true if item is in a sorted slice. Otherwise false.
-func IntContains(sorted []int, item int) bool {
-	i := IntBinarySearch(sorted, item)
-	return sorted[i] == item
+func IntContains(sorted []int, item int, lt IntLessThan) bool {
+	i := IntBinarySearch(sorted, item, lt)
+	return !lt(sorted[i], item) && !lt(item, sorted[i])
 }
 
 // IntInsert inserts item in correct position and returns a sorted slice.
-func IntInsert(sorted []int, item int) []int {
-	i := IntBinarySearch(sorted, item)
-	if i == len(sorted)-1 && sorted[i] < item {
+func IntInsert(sorted []int, item int, lt IntLessThan) []int {
+	i := IntBinarySearch(sorted, item, lt)
+	if i == len(sorted)-1 && lt(sorted[i], item) {
 		return append(sorted, item)
 	}
 	return append(sorted[:i], append([]int{item}, sorted[i:]...)...)
 }
 
 // IntRemove removes item in a sorted slice.
-func IntRemove(sorted []int, item int) []int {
-	i := IntBinarySearch(sorted, item)
-	if sorted[i] == item {
-		return append(sorted[:i], sorted[i+1:]...)
+func IntRemove(sorted []int, item int, lt IntLessThan) []int {
+	i := IntBinarySearch(sorted, item, lt)
+	if !lt(sorted[i], item) && !lt(item, sorted[i]) {
+		return IntRemoveAt(sorted, i)
 	}
 	return sorted
 }
 
+// IntRemoveAt removes item in a slice.
+func IntRemoveAt(sorted []int, i int) []int {
+	return append(sorted[:i], sorted[i+1:]...)
+}
+
 // IntIterateOver iterates over input sorted slices and calls callback with each items in ascendant order.
-func IntIterateOver(callback func(item int, srcIndex int), sorted ...[]int) {
+func IntIterateOver(lt IntLessThan, callback func(item int, srcIndex int), sorted ...[]int) {
 	sourceSlices := make([][]int, 0, len(sorted))
 	for _, src := range sorted {
 		if len(src) > 0 {
@@ -92,7 +100,7 @@ func IntIterateOver(callback func(item int, srcIndex int), sorted ...[]int) {
 		minSlice := 0
 		minItem := sourceSlices[0][indexes[0]]
 		for i := 1; i < sourceSliceCount; i++ {
-			if sourceSlices[i][indexes[i]] < minItem {
+			if lt(sourceSlices[i][indexes[i]], minItem) {
 				minSlice = i
 				minItem = sourceSlices[i][indexes[i]]
 			}
@@ -116,8 +124,8 @@ func IntIterateOver(callback func(item int, srcIndex int), sorted ...[]int) {
 	}
 }
 
-// IntMerge merges sorted slices and returns new slices.
-func IntMerge(sorted ...[]int) []int {
+// IntUnion unions sorted slices and returns new slices.
+func IntUnion(lt IntLessThan, sorted ...[]int) []int {
 	length := 0
 	sourceSlices := make([][]int, 0, len(sorted))
 	for _, src := range sorted {
@@ -128,7 +136,7 @@ func IntMerge(sorted ...[]int) []int {
 	}
 	if length == 0 {
 		return nil
-	} else if length == 1 {
+	} else if len(sourceSlices) == 1 {
 		return sourceSlices[0]
 	}
 	result := make([]int, length)
@@ -139,7 +147,7 @@ func IntMerge(sorted ...[]int) []int {
 		minSlice := 0
 		minItem := sourceSlices[0][indexes[0]]
 		for i := 1; i < sourceSliceCount; i++ {
-			if sourceSlices[i][indexes[i]] < minItem {
+			if lt(sourceSlices[i][indexes[i]], minItem) {
 				minSlice = i
 				minItem = sourceSlices[i][indexes[i]]
 			}

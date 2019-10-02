@@ -144,28 +144,28 @@ func TestRemove(t *testing.T) {
 	properties.TestingRun(t)
 }
 
-func TestMerge(t *testing.T) {
+func TestUnion(t *testing.T) {
 	numberGenerator := gen.Int()
 	numSliceGenerator := gen.SliceOf(numberGenerator)
 
 	properties := gopter.NewProperties(nil)
 
-	properties.Property("marge item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
+	properties.Property("union item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
 		IntSort(input1, cmp)
 		IntSort(input2, cmp)
 		IntSort(input3, cmp)
 
-		marged := IntMerge(cmp, input1, input2, input3)
+		union := IntUnion(cmp, input1, input2, input3)
 
-		if len(marged) == 0 {
+		if len(union) == 0 {
 			return true
 		}
 
-		expected := make([]int, len(marged))
-		copy(expected, marged)
+		expected := make([]int, len(union))
+		copy(expected, union)
 		IntSort(expected, cmp)
 
-		return reflect.DeepEqual(expected, marged)
+		return reflect.DeepEqual(expected, union)
 	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
 
 	properties.TestingRun(t)

@@ -1,21 +1,24 @@
+test-timsort:
+	genny -in=template-timsort/slices.go -out=testdata/timsort/slices.go -pkg=standard gen "ValueType=int"
+	cd testdata/timsort; go test
+
+test-comparable-timsort:
+	genny -in=template-comparable-timsort/slices.go -out=testdata/comparabletimsort/slices.go -pkg=comparable gen "ValueType=int"
+	cd testdata/comparabletimsort; go test
+
 test-standard:
-	genny -in=template/slices.go -out=testdata/standard/standard.go -pkg=standard gen "ValueType=int"
+	genny -in=template/slices.go -out=testdata/standard/slices.go -pkg=small gen "ValueType=int"
 	cd testdata/standard; go test
 
 test-comparable:
-	genny -in=template/slices-comparable.go -out=testdata/comparable/comparable.go -pkg=comparable gen "ValueType=int"
+	genny -in=template-comparable/slices.go -out=testdata/comparable/slices.go -pkg=comparablesmall gen "ValueType=int"
 	cd testdata/comparable; go test
 
-test-small:
-	genny -in=template/slices-small.go -out=testdata/small/small.go -pkg=small gen "ValueType=int"
-	cd testdata/small; go test
+test: test-standard test-comparable test-timsort test-comparable-timsort
 
-test-comparable-small:
-	genny -in=template/slices-comparable-small.go -out=testdata/comparablesmall/comparablesmall.go -pkg=comparablesmall gen "ValueType=int"
-	cd testdata/comparablesmall; go test
-
-test: test-standard test-comparable test-small test-comparable-small
+install:
+	go get github.com/cheekybits/genny
 
 all: test
 
-.PHONY: test test-standard test-comparable test-small test-comparable-small
+.PHONY: test test-standard test-comparable test-timsort test-comparable-timsort

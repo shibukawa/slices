@@ -1,6 +1,7 @@
-package comparable
+package comparablesmall
 
 import (
+	"math/rand"
 	"sort"
 	"testing"
 	"reflect"
@@ -140,28 +141,28 @@ func TestRemove(t *testing.T) {
 	properties.TestingRun(t)
 }
 
-func TestMerge(t *testing.T) {
+func TestUnion(t *testing.T) {
 	numberGenerator := gen.Int()
 	numSliceGenerator := gen.SliceOf(numberGenerator)
 
 	properties := gopter.NewProperties(nil)
 
-	properties.Property("marge item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
+	properties.Property("union item of slices", prop.ForAll(func(input1, input2, input3 []int) bool {
 		IntSort(input1)
 		IntSort(input2)
 		IntSort(input3)
 
-		marged := IntMerge(input1, input2, input3)
+		union := IntUnion(input1, input2, input3)
 
-		if len(marged) == 0 {
+		if len(union) == 0 {
 			return true
 		}
 
-		expected := make([]int, len(marged))
-		copy(expected, marged)
+		expected := make([]int, len(union))
+		copy(expected, union)
 		IntSort(expected)
 
-		return reflect.DeepEqual(expected, marged)
+		return reflect.DeepEqual(expected, union)
 	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
 
 	properties.TestingRun(t)
@@ -195,4 +196,41 @@ func TestIterateOver(t *testing.T) {
 	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
 
 	properties.TestingRun(t)
+}
+
+func benchmarkIntContains(b *testing.B, count int) {
+	slice := make([]int, count)
+	for i := 0; i < count; i++ {
+		slice[i] = rand.Int()
+	}
+	value := slice[0]
+	IntSort(slice)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = IntContains(slice, value)
+	}
+}
+
+func BenchmarkIntContains100(b *testing.B) {
+	benchmarkIntContains(b, 20)
+}
+
+func benchmarkMapContains(b *testing.B, count int) {
+	m := make(map[int]bool, count)
+	var value int
+	for i := 0; i < count; i++ {
+		v := rand.Int()
+		if i == 0 {
+			value = v
+		}
+		m[v] = true
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = m[value]
+	}
+}
+
+func BenchmarkMapContains100(b *testing.B) {
+	benchmarkMapContains(b, 20)
 }

@@ -792,9 +792,14 @@ func IntInsert(sorted []int, item int, lt IntLessThan) []int {
 func IntRemove(sorted []int, item int, lt IntLessThan) []int {
 	i := IntBinarySearch(sorted, item, lt)
 	if !lt(sorted[i], item) && !lt(item, sorted[i]) {
-		return append(sorted[:i], sorted[i+1:]...)
+		return IntRemoveAt(sorted, i)
 	}
 	return sorted
+}
+
+// IntRemoveAt removes item in a slice.
+func IntRemoveAt(sorted []int, i int) []int {
+	return append(sorted[:i], sorted[i+1:]...)
 }
 
 // IntIterateOver iterates over input sorted slices and calls callback with each items in ascendant order.
@@ -848,8 +853,8 @@ func IntIterateOver(lt IntLessThan, callback func(item int, srcIndex int), sorte
 	}
 }
 
-// IntMerge merges sorted slices and returns new slices.
-func IntMerge(lt IntLessThan, sorted ...[]int) []int {
+// IntUnion unions sorted slices and returns new slices.
+func IntUnion(lt IntLessThan, sorted ...[]int) []int {
 	length := 0
 	sourceSlices := make([][]int, 0, len(sorted))
 	for _, src := range sorted {
@@ -860,7 +865,7 @@ func IntMerge(lt IntLessThan, sorted ...[]int) []int {
 	}
 	if length == 0 {
 		return nil
-	} else if length == 1 {
+	} else if len(sourceSlices) == 1 {
 		return sourceSlices[0]
 	}
 	result := make([]int, length)
