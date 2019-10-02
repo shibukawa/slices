@@ -11,6 +11,13 @@ import (
 	"github.com/leanovate/gopter/prop"
 )
 
+func deepEqual(v1, v2 []int) bool {
+	if len(v1) == 0 && len(v2) == 0 {
+		return true
+	}
+	return reflect.DeepEqual(v1, v2)
+}
+
 func TestSortInt(t *testing.T) {
 	numberGenerator := gen.Int()
 	numSliceGenerator := gen.SliceOf(numberGenerator)
@@ -25,7 +32,7 @@ func TestSortInt(t *testing.T) {
 
 		IntSort(timSort)
 		sort.Ints(defaultSort)
-		return reflect.DeepEqual(timSort, defaultSort)
+		return deepEqual(timSort, defaultSort)
 	}, numSliceGenerator))
 
 	properties.TestingRun(t)
@@ -163,6 +170,40 @@ func TestUnion(t *testing.T) {
 		IntSort(expected)
 
 		return reflect.DeepEqual(expected, union)
+	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
+
+	properties.TestingRun(t)
+}
+
+func TestDifference(t *testing.T) {
+	result := IntDifference([]int{10, 20, 30, 40}, []int{20, 30})
+	if len(result) != 2 {
+		t.Error("length should be 2")
+	}
+}
+
+func TestIntersection(t *testing.T) {
+	numberGenerator := gen.Int()
+	numSliceGenerator := gen.SliceOf(numberGenerator)
+
+	properties := gopter.NewProperties(nil)
+
+	properties.Property("intersection item of slices", prop.ForAll(func(src1, src2, common []int) bool {
+		IntSort(src1)
+		IntSort(src2)
+		IntSort(common)
+
+		src1 = IntDifference(src1, src2)
+		common = IntDifference(common, src2)
+
+		input1 := IntUnion(src1, common)
+		input2 := IntUnion(src2, common)
+
+		actual := IntIntersection(input1, input2)
+		if len(actual) != len(common) {
+			return false
+		}
+		return deepEqual(common, actual)
 	}, numSliceGenerator, numSliceGenerator, numSliceGenerator))
 
 	properties.TestingRun(t)

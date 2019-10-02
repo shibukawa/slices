@@ -10,6 +10,8 @@ export function generateTimsort(config: GeneratorConfig): string {
     const remove = symbol('Remove', true, config);
     const iterateOver = symbol('IterateOver', true, config);
     const union = symbol('Union', true, config);
+    const intersection = symbol('Intersection', true, config);
+    const difference = symbol('Difference', true, config);
     const lessThan = symbol('LessThan', true, config);
 
     const newTimSort = symbol('newTimSort', false, config);
@@ -132,6 +134,70 @@ export function generateTimsort(config: GeneratorConfig): string {
                 }
             }
         }
+    }
+
+    // ${difference} creates difference group of sorted slices and returns.
+    func ${difference}(lt ${lessThan}, sorted1, sorted2 []${sliceType}) []${sliceType} {
+        var result []${sliceType}
+        var i, j int
+        for i < len(sorted1) && j < len(sorted2) {
+            if lt(sorted1[i], sorted2[j]) {
+                result = append(result, sorted1[i])
+                i++
+            } else if lt(sorted2[j], sorted1[i]) {
+                j++
+            } else {
+                i++
+                j++
+            }
+        }
+        result = append(result, sorted1[i:]...)
+        return result
+    }
+
+    // ${intersection} creates intersection group of sorted slices and returns.
+    func ${intersection}(lt ${lessThan}, sorted ...[]${sliceType}) []${sliceType} {
+        sort.Slice(sorted, func(i, j int) bool {
+            return len(sorted[i]) < len(sorted[j])
+        })
+        var result []${sliceType}
+        if len(sorted[0]) == 0 {
+            return result
+        }
+        cursors := make([]int, len(sorted))
+        terminate := false
+        for _, value := range sorted[0] {
+            needIncrement := false
+            for i := 1; i < len(sorted); i++ {
+                found := false
+                for j := cursors[i]; j < len(sorted[i]); j++ {
+                    valueOfOtherSlice := sorted[i][cursors[i]]
+                    if lt(valueOfOtherSlice, value) {
+                        cursors[i] = j + 1
+                    } else if lt(value, valueOfOtherSlice) {
+                        needIncrement = true
+                        break
+                    } else {
+                        found = true
+                        break
+                    }
+                }
+                if needIncrement {
+                    break
+                }
+                if !found {
+                    terminate = true
+                    break
+                }
+            }
+            if terminate {
+                break
+            }
+            if !needIncrement {
+                result = append(result, value)
+            }
+        }
+        return result
     }
 
     // ${union} unions sorted slices and returns new slices.

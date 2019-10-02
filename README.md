@@ -83,7 +83,15 @@ This function iterated over input sorted slices and calls callback with each ite
 
 ### [ValueType]Union(lt LessThan, sorted ...[]ValueType) []ValueType
 
-This function unions sorted slices and returns new slices.
+This function returns new slices of sorted1 | sorted2 |....
+
+### [ValueType]Intersection(lt LessThan, sorted ...[]ValueType) []ValueType
+
+This function returns new slices of sorted1 & sorted2 &....
+
+### [ValueType]Difference(lt LessThan, sorted1, sorted2 []ValueType) []ValueType
+
+This function returns new slices of sorted1 - sorted2.
 
 ## Credits/Thanks
 

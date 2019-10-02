@@ -7,6 +7,7 @@ package standard
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 // Package timsort provides fast stable sort, uses external comparator.
@@ -894,4 +895,66 @@ func IntUnion(lt IntLessThan, sorted ...[]int) []int {
 			}
 		}
 	}
+}
+
+func IntDifference(lt IntLessThan, sorted1, sorted2 []int) []int {
+	var result []int
+	var i, j int
+	for i < len(sorted1) && j < len(sorted2) {
+		if lt(sorted1[i], sorted2[j]) {
+			result = append(result, sorted1[i])
+			i++
+		} else if lt(sorted2[j], sorted1[i]) {
+			j++
+		} else {
+			i++
+			j++
+		}
+	}
+	result = append(result, sorted1[i:]...)
+	return result
+}
+
+func IntIntersection(lt IntLessThan, sorted ...[]int) []int {
+	sort.Slice(sorted, func(i, j int) bool {
+		return len(sorted[i]) < len(sorted[j])
+	})
+	var result []int
+	if len(sorted[0]) == 0 {
+		return result
+	}
+	cursors := make([]int, len(sorted))
+	terminate := false
+	for _, value := range sorted[0] {
+		needIncrement := false
+		for i := 1; i < len(sorted); i++ {
+			found := false
+			for j := cursors[i]; j < len(sorted[i]); j++ {
+				valueOfOtherSlice := sorted[i][cursors[i]]
+				if lt(valueOfOtherSlice, value) {
+					cursors[i] = j + 1
+				} else if lt(value, valueOfOtherSlice) {
+					needIncrement = true
+					break
+				} else {
+					found = true
+					break
+				}
+			}
+			if needIncrement {
+				break
+			}
+			if !found {
+				terminate = true
+				break
+			}
+		}
+		if terminate {
+			break
+		}
+		if !needIncrement {
+			result = append(result, value)
+		}
+	}
+	return result
 }

@@ -47,6 +47,7 @@
           <ion-select-option value="uint64">uint64</ion-select-option>
           <ion-select-option value="float32">float32</ion-select-option>
           <ion-select-option value="float64">float64</ion-select-option>
+          <ion-select-option value="string">string</ion-select-option>
         </ion-select>
       </ion-item>
       <ion-item>
